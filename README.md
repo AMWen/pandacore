@@ -13,7 +13,13 @@ This app lets you generate a new workout each day, includes a built-in timer, le
 
 ## Screenshots
 <div style="text-align: left;">
-To come...
+  <img src="assets/screenshots/1_primary_screen.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/2_refresh.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/3_checkmark.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/4_timer.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/5_workout_history.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/6_daily_history.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/7_export.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
 </div>
 
 ## Getting Started
@@ -41,7 +47,7 @@ flutter pub get
 
 For android:
 ```bash
-flutter build apk --release --no-tree-shake-icons
+flutter build apk --release
 ```
 
 For iOS (need to create an an iOS Development Certificate in Apple Developer account):
