@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
+import 'screens/history_screen.dart';
 import 'screens/home_screen.dart';
 import 'data/constants.dart';
 
 void main() => runApp(MyApp());
+
+class SwipeScreens extends StatelessWidget {
+  const SwipeScreens({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView(
+        children: [
+          HomeScreen(),
+          HistoryScreen(),
+        ],
+      ),
+    );
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -36,7 +53,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: secondaryColor,
         ),
       ),
-      home: HomeScreen(),
+      home: SwipeScreens(),
       debugShowCheckedModeBanner: false,
     );
   }
