@@ -3,14 +3,19 @@ import '../constants.dart';
 import '../models/exercise_model.dart';
 
 class WorkoutGenerator {
-  static WorkoutRoutine generateDailyRoutineStructured() {
-    final random = Random();
+  static WorkoutRoutine generateDailyRoutineStructured([int? seed]) {
+    if (seed == null) {
+      final now = DateTime.now();
+      seed = DateTime(now.year, now.month, now.day, now.hour).millisecondsSinceEpoch;
+    }
+
+    final random = Random(seed);
     final option = routineOptions[random.nextInt(routineOptions.length)];
     final sets = option[0];
     final exercisesPerSet = option[1];
     final totalExercises = sets * exercisesPerSet;
 
-    final List<Exercise> chosen = List.of(exercisePool)..shuffle();
+    final List<Exercise> chosen = List.of(exercisePool)..shuffle(random);
     final List<Exercise> selected = chosen.take(exercisesPerSet).toList();
 
     final factor = _calculateScalingFactor(totalExercises);

@@ -27,8 +27,8 @@ final List<Exercise> exercisePool = [
   Exercise(name: 'Crunches', amount: 25, increment: 5, videoLink: 'https://youtu.be/s0j8dENaT1g'),
   Exercise(
     name: 'Side Crunches',
-    amount: 20,
-    increment: 5,
+    amount: 30,
+    increment: 2,
     videoLink: 'https://youtu.be/shorts/PoCV2y67qiE',
   ), // 30 when 10
   Exercise(
@@ -61,7 +61,7 @@ final List<Exercise> exercisePool = [
     increment: 5,
     videoLink: 'https://youtu.be/ixwJ6A8qyuA',
   ),
-  Exercise(name: 'Side Bends', amount: 20, increment: 5, videoLink: 'https://youtu.be/FRDPoaiD1DQ'),
+  Exercise(name: 'Side Bends', amount: 20, increment: 2, videoLink: 'https://youtu.be/FRDPoaiD1DQ'),
   Exercise(name: 'V-Ups', amount: 10, increment: 2, videoLink: 'https://youtu.be/WAcaMktW7j0'),
   Exercise(
     name: 'Oblique V-Ups',
@@ -70,7 +70,7 @@ final List<Exercise> exercisePool = [
     videoLink: 'https://youtu.be/zXa8d5kYqAI',
   ), // mostly 12 but one 8
   Exercise(name: 'Corkscrews', amount: 12, increment: 2, videoLink: 'https://youtu.be/XjyC3bnrB7o'),
-  Exercise(name: 'Twists', amount: 20, increment: 5, videoLink: 'https://youtu.be/cOAvMdawV90'),
+  Exercise(name: 'Twists', amount: 20, increment: 2, videoLink: 'https://youtu.be/cOAvMdawV90'),
   Exercise(
     name: 'Russian Twists',
     amount: 16,

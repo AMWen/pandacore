@@ -111,7 +111,7 @@ class HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Progress'),
+        title: Text('Workout History'),
         actions: [
           SizedBox(
             width: 34,

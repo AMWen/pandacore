@@ -20,16 +20,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   WorkoutRoutine? routine;
   bool isWorkoutCompleted = false;
+  final now = DateTime.now();
+  int? seed;
+  late int todaySeed;
 
   @override
   void initState() {
     super.initState();
     _loadRoutine();
+    todaySeed = DateTime(now.year, now.month, now.day, now.hour).millisecondsSinceEpoch;
   }
 
   Future<void> _loadRoutine() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toIso8601String().substring(0, 10); // YYYY-MM-DD
+    seed = prefs.getInt('seed');
     final savedDate = prefs.getString('routine_date');
     final savedRoutineJson = prefs.getString('routine_data');
 
@@ -39,15 +44,17 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       _checkIfWorkoutCompleted(today);
     } else {
-      _generateNewRoutine();
+      seed = todaySeed;
+      _generateNewRoutine(seed!);
     }
   }
 
-  Future<void> _generateNewRoutine() async {
+  Future<void> _generateNewRoutine(int seed) async {
     final prefs = await SharedPreferences.getInstance();
-    final newRoutine = WorkoutGenerator.generateDailyRoutineStructured();
+    final newRoutine = WorkoutGenerator.generateDailyRoutineStructured(seed);
     final today = DateTime.now().toIso8601String().substring(0, 10);
 
+    await prefs.setInt('seed', seed);
     await prefs.setString('routine_date', today);
     await prefs.setString('routine_data', jsonEncode(newRoutine.toJson()));
 
@@ -125,7 +132,12 @@ class _HomeScreenState extends State<HomeScreen> {
             child: IconButton(
               icon: Icon(Icons.refresh),
               tooltip: 'Generate New Workout',
-              onPressed: _generateNewRoutine,
+              onPressed: () {
+                setState(() {
+                  seed = seed == null ? todaySeed : seed! + 1;
+                });
+                _generateNewRoutine(seed!);
+              },
             ),
           ),
           SizedBox(width: 10),
