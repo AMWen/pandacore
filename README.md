@@ -50,6 +50,13 @@ For android:
 flutter build apk --release
 ```
 
+See instructions for [Signing the App for Flutter](https://docs.flutter.dev/deployment/android#sign-the-app) and [Uploading Native Debug Symbols](https://stackoverflow.com/questions/62568757/playstore-error-app-bundle-contains-native-code-and-youve-not-uploaded-debug)
+
+You may also need to remove some files from the bundle if using a MacOS.
+```bash
+zip -d Archive.zip "__MACOSX*"
+```
+
 For iOS (need to create an an iOS Development Certificate in Apple Developer account):
 ```bash
 flutter build ios --release
