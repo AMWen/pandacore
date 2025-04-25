@@ -18,8 +18,10 @@ This app lets you generate a new workout each day, includes a built-in timer, le
   <img src="assets/screenshots/3_checkmark.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
   <img src="assets/screenshots/4_timer.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
   <img src="assets/screenshots/5_workout_history.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-  <img src="assets/screenshots/6_daily_history.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-  <img src="assets/screenshots/7_export.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/6_workout_history_completed.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/7_workout_beast.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/8_daily_history.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/9_export.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
 </div>
 
 ## Getting Started

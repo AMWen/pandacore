@@ -5,6 +5,7 @@ import 'models/exercise_model.dart';
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;
 Color dullColor = Colors.grey[500]!;
+double pandaWidth = 200;
 
 class TextStyles {
   static TextStyle whiteText = TextStyle(color: Colors.white);

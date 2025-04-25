@@ -164,7 +164,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           if (_streak == 0) ...[
             SizedBox(height: 16),
             Text("Let's start powering up your panda!", style: TextStyles.mediumText),
-            Image.asset('assets/images/sad_baby_panda.png', width: 250),
+            Image.asset('assets/images/sad_baby_panda.png', width: pandaWidth),
           ],
           if (_streak > 0 && _streak < 7) ...[
             SizedBox(height: 16),
@@ -174,7 +174,7 @@ class HistoryScreenState extends State<HistoryScreen> {
                   : 'Keep going! Extend your streak to ${_streak + 1} days!',
               style: TextStyles.mediumText,
             ),
-            Image.asset('assets/images/baby_panda.png', width: 250),
+            Image.asset('assets/images/baby_panda.png', width: pandaWidth),
           ],
           if (_streak >= 7) ...[
             SizedBox(height: 16),
@@ -184,7 +184,7 @@ class HistoryScreenState extends State<HistoryScreen> {
                   : 'Keep going! Extend your streak to ${_streak + 1} days!',
               style: TextStyles.mediumText,
             ),
-            Image.asset('assets/images/strong_panda.png', width: 250),
+            Image.asset('assets/images/strong_panda.png', width: pandaWidth),
           ],
         ],
       ),
