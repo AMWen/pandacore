@@ -7,7 +7,7 @@ import '../data/constants.dart';
 import '../data/models/exercise_model.dart';
 import '../data/services/localdb_service.dart';
 import '../data/services/workout_generator.dart';
-import '../data/widgets/countdown_widget.dart';
+import '../data/widgets/workoutcard_widget.dart';
 import 'history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -152,6 +152,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> toggleWorkoutCompletion({
+    required BuildContext context,
+    required DateTime date,
+    required WorkoutRoutine routine,
+    required bool isCompleted,
+    required void Function(bool) updateState,
+  }) async {
+    final formattedDate = date.toIso8601String().substring(0, 10);
+
+    if (!isCompleted) {
+      await LocalDB.insertLog(routine, formattedDate);
+      updateState(true);
+      if (context.mounted) {
+        showErrorSnackbar(context, 'Workout completed! Great job 💪');
+      }
+    } else {
+      await LocalDB.delete(date);
+      updateState(false);
+      if (context.mounted) {
+        showErrorSnackbar(context, 'Workout incomplete. 😭');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routine == null || yesterdayRoutine == null) {
@@ -204,83 +228,20 @@ class _HomeScreenState extends State<HomeScreen> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              color: primaryColor,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...routine!.exercises.map((e) {
-                          final isTimed = e.isTimed;
-                          final text = e.formatText();
-                          return ListTile(
-                            minTileHeight: 0,
-                            contentPadding: EdgeInsets.zero,
-                            horizontalTitleGap: 0,
-                            leading:
-                                isTimed
-                                    ? GestureDetector(
-                                      onTap:
-                                          () => showDialog(
-                                            context: context,
-                                            builder: (_) => CountdownDialog(seconds: e.amount),
-                                          ),
-                                      child: Container(
-                                        color: primaryColor,
-                                        child: SizedBox(
-                                          width: 36,
-                                          height: 36,
-                                          child: Center(child: Text('⏰')),
-                                        ),
-                                      ),
-                                    )
-                                    : SizedBox(width: 36, height: 36),
-                            title: Text(text, style: TextStyles.whiteText),
-                            onTap: () {
-                              _launchUrl(e.videoLink);
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                    // Add checkbox icon in top-right corner
-                    Positioned(
-                      right: 12,
-                      top: 6,
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (!isWorkoutCompleted) {
-                            await LocalDB.insertLog(routine!);
-                            setState(() {
-                              isWorkoutCompleted = true;
-                            });
-                            if (context.mounted) {
-                              showErrorSnackbar(context, 'Workout completed! Great job 💪');
-                            }
-                          } else {
-                            await LocalDB.delete(today);
-                            setState(() {
-                              isWorkoutCompleted = false;
-                            });
-                            if (context.mounted) {
-                              showErrorSnackbar(context, 'Workout incomplete. 😭');
-                            }
-                          }
-                        },
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: isWorkoutCompleted ? Colors.green.shade600 : dullColor,
-                          child: Icon(Icons.check, color: secondaryColor),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            buildWorkoutCard(
+              context: context,
+              routine: routine!,
+              isCompleted: isWorkoutCompleted,
+              onToggleComplete: () async {
+                await toggleWorkoutCompletion(
+                  context: context,
+                  date: today,
+                  isCompleted: isWorkoutCompleted,
+                  routine: routine!,
+                  updateState: (val) => setState(() => isWorkoutCompleted = val),
+                );
+              },
+              onLaunchUrl: _launchUrl,
             ),
 
             // Yesterday Card
@@ -291,86 +252,20 @@ class _HomeScreenState extends State<HomeScreen> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              color: primaryColor,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...yesterdayRoutine!.exercises.map((e) {
-                          final isTimed = e.isTimed;
-                          final text = e.formatText();
-                          return ListTile(
-                            minTileHeight: 0,
-                            contentPadding: EdgeInsets.zero,
-                            horizontalTitleGap: 0,
-                            leading:
-                                isTimed
-                                    ? GestureDetector(
-                                      onTap:
-                                          () => showDialog(
-                                            context: context,
-                                            builder: (_) => CountdownDialog(seconds: e.amount),
-                                          ),
-                                      child: Container(
-                                        color: primaryColor,
-                                        child: SizedBox(
-                                          width: 36,
-                                          height: 36,
-                                          child: Center(child: Text('⏰')),
-                                        ),
-                                      ),
-                                    )
-                                    : SizedBox(width: 36, height: 36),
-                            title: Text(text, style: TextStyles.whiteText),
-                            onTap: () {
-                              _launchUrl(e.videoLink);
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                    // Add checkbox icon in top-right corner
-                    Positioned(
-                      right: 12,
-                      top: 6,
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (!isYesterdayCompleted) {
-                            await LocalDB.insertLog(
-                              routine!,
-                              yesterday.toIso8601String().substring(0, 10),
-                            );
-                            setState(() {
-                              isYesterdayCompleted = true;
-                            });
-                            if (context.mounted) {
-                              showErrorSnackbar(context, 'Workout completed! Great job 💪');
-                            }
-                          } else {
-                            await LocalDB.delete(yesterday);
-                            setState(() {
-                              isYesterdayCompleted = false;
-                            });
-                            if (context.mounted) {
-                              showErrorSnackbar(context, 'Workout incomplete. 😭');
-                            }
-                          }
-                        },
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: isYesterdayCompleted ? Colors.green.shade600 : dullColor,
-                          child: Icon(Icons.check, color: secondaryColor),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            buildWorkoutCard(
+              context: context,
+              routine: yesterdayRoutine!,
+              isCompleted: isYesterdayCompleted,
+              onToggleComplete: () async {
+                await toggleWorkoutCompletion(
+                  context: context,
+                  date: yesterday,
+                  isCompleted: isYesterdayCompleted,
+                  routine: yesterdayRoutine!,
+                  updateState: (val) => setState(() => isYesterdayCompleted = val),
+                );
+              },
+              onLaunchUrl: _launchUrl,
             ),
           ],
         ),
