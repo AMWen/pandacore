@@ -30,14 +30,31 @@ class LocalDB {
     return _db!;
   }
 
-  static Future<void> insertLog(WorkoutRoutine routine) async {
+  static Future<void> insertLog(WorkoutRoutine routine, [String? date]) async {
     final db = await database;
-    final now = DateTime.now().subtract(Duration(days: 0));
-    final date = now.toIso8601String().substring(0, 10);
+    if (date == null) {
+      final now = DateTime.now().subtract(Duration(days: 0));
+      date = now.toIso8601String().substring(0, 10);
+    }
     await db.insert('logs', {
       'date': date,
       'routine': jsonEncode(routine.toJson()),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  static Future<WorkoutRoutine?> getRoutineForDate(DateTime date) async {
+    final db = await LocalDB.database;
+    final dateString = date.toIso8601String().substring(0, 10);
+
+    final results = await db.query('logs', where: 'date = ?', whereArgs: [dateString]);
+
+    if (results.isEmpty) {
+      return null;
+    }
+
+    String routineJson = results.first['routine'] as String;
+    final routine = WorkoutRoutine.fromJson(jsonDecode(routineJson));
+    return routine;
   }
 
   static Future<List<Map<String, dynamic>>> fetchLogs() async {
@@ -55,10 +72,10 @@ class LocalDB {
     await db.delete('logs');
   }
 
-  static Future<void> deleteToday() async {
+  static Future<void> delete(DateTime date) async {
     final db = await database;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    await db.delete('logs', where: 'date = ?', whereArgs: [today]);
+    final dateStr = date.toIso8601String().substring(0, 10);
+    await db.delete('logs', where: 'date = ?', whereArgs: [dateStr]);
   }
 
   static Future<String> exportProgress() async {

@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../data/constants.dart';
-import '../data/models/exercise_model.dart';
 import '../data/services/localdb_service.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -71,19 +68,13 @@ class HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _showRoutineForDate(DateTime date) async {
-    final db = await LocalDB.database;
+    final routine = await LocalDB.getRoutineForDate(date);
     final dateString = date.toIso8601String().substring(0, 10);
 
-    final results = await db.query('logs', where: 'date = ?', whereArgs: [dateString]);
-
-    if (results.isEmpty && mounted) {
+    if (routine == null && mounted) {
       showErrorSnackbar(context, 'No workout found for this date');
       return;
     }
-
-    String routineJson = results.first['routine'] as String;
-    final routine = WorkoutRoutine.fromJson(jsonDecode(routineJson));
-    final routineText = routine.exercises.map((e) => e.formatText()).join('\n');
 
     if (mounted) {
       showDialog(
@@ -91,7 +82,17 @@ class HistoryScreenState extends State<HistoryScreen> {
         builder:
             (_) => AlertDialog(
               title: Text('Workout for $dateString', style: TextStyles.dialogTitle),
-              content: Text(routineText),
+              content: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: '${routine!.sets} sets\n', style: TextStyles.mediumText),
+                    TextSpan(
+                      text: routine.exercises.map((e) => e.formatText()).join('\n'),
+                      style: TextStyles.normalText,
+                    ),
+                  ],
+                ),
+              ),
               actions: [FilledButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
             ),
       );
@@ -160,14 +161,30 @@ class HistoryScreenState extends State<HistoryScreen> {
               _showRoutineForDate(selectedDay);
             },
           ),
-          if (_streak > 1 || (_streak > 0 && !_todayCompleted)) ...[
+          if (_streak == 0) ...[
+            SizedBox(height: 16),
+            Text("Let's start powering up your panda!", style: TextStyles.mediumText),
+            Image.asset('assets/images/sad_baby_panda.png', width: 250),
+          ],
+          if (_streak > 0 && _streak < 7) ...[
             SizedBox(height: 16),
             Text(
               _todayCompleted
-                  ? '🔥 $_streak day streak!'
+                  ? (_streak == 1 ? '1 day completed! Way to go!' : '🔥 $_streak day streak!')
                   : 'Keep going! Extend your streak to ${_streak + 1} days!',
               style: TextStyles.mediumText,
             ),
+            Image.asset('assets/images/baby_panda.png', width: 250),
+          ],
+          if (_streak >= 7) ...[
+            SizedBox(height: 16),
+            Text(
+              _todayCompleted
+                  ? "You're a beast! 🔥 $_streak day streak"
+                  : 'Keep going! Extend your streak to ${_streak + 1} days!',
+              style: TextStyles.mediumText,
+            ),
+            Image.asset('assets/images/strong_panda.png', width: 250),
           ],
         ],
       ),

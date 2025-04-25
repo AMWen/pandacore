@@ -21,7 +21,7 @@ class WorkoutGenerator {
     final factor = _calculateScalingFactor(totalExercises);
     final List<Exercise> setsList =
         selected.map((ex) {
-          final amount = _scaleAmount(ex, factor);
+          final amount = _scaleAmount(ex, factor, random);
           return Exercise(name: ex.name, amount: amount, isTimed: ex.isTimed, videoLink: ex.videoLink);
         }).toList();
 
@@ -33,8 +33,7 @@ class WorkoutGenerator {
     return baseVolume / totalExercises;
   }
 
-  static int _scaleAmount(Exercise exercise, double factor) {
-    final random = Random();
+  static int _scaleAmount(Exercise exercise, double factor, Random random) {
     final raw = (exercise.amount * factor).round();
     int base = raw ~/ exercise.increment; // for rounding
 

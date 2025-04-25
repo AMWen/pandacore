@@ -8,8 +8,8 @@ Color dullColor = Colors.grey[500]!;
 
 class TextStyles {
   static TextStyle whiteText = TextStyle(color: Colors.white);
-  static TextStyle boldText = TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
   static TextStyle mediumText = TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
+  static TextStyle normalText = TextStyle(fontSize: 16);
   static TextStyle titleText = TextStyle(fontSize: 20, fontWeight: FontWeight.w500);
   static const TextStyle dialogTitle = TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
 }
@@ -29,13 +29,13 @@ final List<Exercise> exercisePool = [
     name: 'Side Crunches',
     amount: 30,
     increment: 2,
-    videoLink: 'https://youtu.be/shorts/PoCV2y67qiE',
+    videoLink: 'https://youtu.be/q0QyCrpiNgI',
   ), // 30 when 10
   Exercise(
     name: 'Alternating Crunches',
     amount: 16,
     increment: 2,
-    videoLink: 'https://youtube.com/5Us8qjdBLV0',
+    videoLink: 'https://youtu.be/2IzByyOeGIQ',
   ), // 20 when 8, 14 when 7
   Exercise(
     name: 'Crunch Twists',
@@ -99,26 +99,26 @@ final List<Exercise> exercisePool = [
     name: 'Scissors',
     amount: 40,
     increment: 2,
-    videoLink: 'https://youtube.com/shorts/waIXZ0LA1YE',
+    videoLink: 'https://youtu.be/yY9yfNQzz04',
   ), // 38 for 8, 40 for 10
   Exercise(
     name: 'Mountain Climbers',
     amount: 20,
     increment: 2,
-    videoLink: 'https://youtu.be/4ByPbOSfYsg',
+    videoLink: 'https://youtu.be/kLh-uczlPLg',
   ),
   Exercise(
     name: 'Push Throughs',
     amount: 20,
     increment: 5,
-    videoLink: 'https://youtu.be/a6ytbdII7Ps',
+    videoLink: 'https://youtu.be/iL__5TqPAfU',
   ),
   Exercise(name: 'Bicycles', amount: 20, increment: 2, videoLink: 'https://youtu.be/251erijgyA0'),
   Exercise(
     name: 'Planks Knee to Elbow',
     amount: 16,
     increment: 2,
-    videoLink: 'https://youtube.com/shorts/vhnQR5lCF-U',
+    videoLink: 'https://youtu.be/Po3ltHqnnC0',
   ),
   Exercise(
     name: 'Plank',
@@ -139,7 +139,7 @@ final List<Exercise> exercisePool = [
     amount: 10,
     isTimed: true,
     increment: 5,
-    videoLink: 'https://youtu.be/4xRpGgttca8',
+    videoLink: 'https://youtu.be/7QMpN9uFHeI',
   ),
   Exercise(name: 'Goalies', amount: 20, increment: 5, videoLink: 'https://youtu.be/gDrMWkoQ1rY'),
 ];

@@ -19,33 +19,87 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   WorkoutRoutine? routine;
+  WorkoutRoutine? yesterdayRoutine;
+  DateTime today = DateTime.now();
+  DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
   bool isWorkoutCompleted = false;
-  final now = DateTime.now();
+  bool isYesterdayCompleted = false;
   int? seed;
+  int? prevSeed;
   late int todaySeed;
+  late int yesterdaySeed;
 
   @override
   void initState() {
     super.initState();
+    todaySeed = DateTime(today.year, today.month, today.day).millisecondsSinceEpoch;
+    yesterdaySeed = DateTime(yesterday.year, yesterday.month, yesterday.day).millisecondsSinceEpoch;
     _loadRoutine();
-    todaySeed = DateTime(now.year, now.month, now.day, now.hour).millisecondsSinceEpoch;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _rebuild();
+  }
+
+  void _rebuild() {
+    // Check if the date has changed and update accordingly
+    final now = DateTime.now();
+
+    if (DateTime(today.year, today.month, today.day) != DateTime(now.year, now.month, now.day)) {
+      resetStates();
+      _loadRoutine();
+    }
+  }
+
+  void resetStates() {
+    setState(() {
+      routine = null;
+      yesterdayRoutine = null;
+      today = DateTime.now();
+      yesterday = DateTime.now().subtract(Duration(days: 1));
+      isWorkoutCompleted = false;
+      isYesterdayCompleted = false;
+      todaySeed = DateTime(today.year, today.month, today.day).millisecondsSinceEpoch;
+      yesterdaySeed =
+          DateTime(yesterday.year, yesterday.month, yesterday.day).millisecondsSinceEpoch;
+    });
   }
 
   Future<void> _loadRoutine() async {
     final prefs = await SharedPreferences.getInstance();
-    final today = DateTime.now().toIso8601String().substring(0, 10); // YYYY-MM-DD
+    final todayStr = today.toIso8601String().substring(0, 10); // YYYY-MM-DD
+
     seed = prefs.getInt('seed');
     final savedDate = prefs.getString('routine_date');
     final savedRoutineJson = prefs.getString('routine_data');
 
-    if (savedDate == today && savedRoutineJson != null) {
+    // Check if today's routine is saved in DB
+    routine = await LocalDB.getRoutineForDate(today);
+    if (routine != null) {
       setState(() {
-        routine = WorkoutRoutine.fromJson(jsonDecode(savedRoutineJson));
+        isWorkoutCompleted = true;
       });
-      _checkIfWorkoutCompleted(today);
     } else {
-      seed = todaySeed;
-      _generateNewRoutine(seed!);
+      if (savedDate == todayStr && savedRoutineJson != null) {
+        setState(() {
+          routine = WorkoutRoutine.fromJson(jsonDecode(savedRoutineJson));
+        });
+      } else {
+        seed = todaySeed;
+        _generateNewRoutine(seed!);
+      }
+    }
+
+    // Check if yesterday's routine is saved, if not generate it
+    yesterdayRoutine = await LocalDB.getRoutineForDate(yesterday);
+    if (yesterdayRoutine != null) {
+      setState(() {
+        isYesterdayCompleted = true;
+      });
+    } else {
+      _generateYesterdayRoutine(yesterdaySeed);
     }
   }
 
@@ -61,16 +115,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       routine = newRoutine;
     });
-
-    _checkIfWorkoutCompleted(today);
   }
 
-  Future<void> _checkIfWorkoutCompleted(String date) async {
-    final logs = await LocalDB.fetchLogs();
-    final completedRoutine = logs.firstWhere((log) => log['date'] == date, orElse: () => {});
-
+  Future<void> _generateYesterdayRoutine(int seed) async {
     setState(() {
-      isWorkoutCompleted = completedRoutine.isNotEmpty;
+      isYesterdayCompleted = false;
+      yesterdayRoutine = WorkoutGenerator.generateDailyRoutineStructured(seed);
     });
   }
 
@@ -104,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (routine == null) {
+    if (routine == null || yesterdayRoutine == null) {
       return Scaffold(
         appBar: AppBar(title: Text('PandaCore')),
         body: Center(child: CircularProgressIndicator()),
@@ -123,8 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed:
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const HistoryScreen()),
-                  ),
+                    MaterialPageRoute(builder: (_) => HistoryScreen()),
+                  ).then((_) => _rebuild()),
             ),
           ),
           SizedBox(
@@ -147,9 +197,10 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // Today Card
             Text(
               'Today: ${routine!.exercisesPerSet} exercises x ${routine!.sets}',
-              style: TextStyles.boldText,
+              style: TextStyles.titleText,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 16),
@@ -211,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               showErrorSnackbar(context, 'Workout completed! Great job 💪');
                             }
                           } else {
-                            await LocalDB.deleteToday();
+                            await LocalDB.delete(today);
                             setState(() {
                               isWorkoutCompleted = false;
                             });
@@ -223,6 +274,96 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: CircleAvatar(
                           radius: 16,
                           backgroundColor: isWorkoutCompleted ? Colors.green.shade600 : dullColor,
+                          child: Icon(Icons.check, color: secondaryColor),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Yesterday Card
+            SizedBox(height: 16),
+            Text(
+              'Yesterday: ${yesterdayRoutine!.exercisesPerSet} exercises x ${yesterdayRoutine!.sets}',
+              style: TextStyles.titleText,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16),
+            Card(
+              margin: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+              color: primaryColor,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+                child: Stack(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...yesterdayRoutine!.exercises.map((e) {
+                          final isTimed = e.isTimed;
+                          final text = e.formatText();
+                          return ListTile(
+                            minTileHeight: 0,
+                            contentPadding: EdgeInsets.zero,
+                            horizontalTitleGap: 0,
+                            leading:
+                                isTimed
+                                    ? GestureDetector(
+                                      onTap:
+                                          () => showDialog(
+                                            context: context,
+                                            builder: (_) => CountdownDialog(seconds: e.amount),
+                                          ),
+                                      child: Container(
+                                        color: primaryColor,
+                                        child: SizedBox(
+                                          width: 36,
+                                          height: 36,
+                                          child: Center(child: Text('⏰')),
+                                        ),
+                                      ),
+                                    )
+                                    : SizedBox(width: 36, height: 36),
+                            title: Text(text, style: TextStyles.whiteText),
+                            onTap: () {
+                              _launchUrl(e.videoLink);
+                            },
+                          );
+                        }),
+                      ],
+                    ),
+                    // Add checkbox icon in top-right corner
+                    Positioned(
+                      right: 12,
+                      top: 6,
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (!isYesterdayCompleted) {
+                            await LocalDB.insertLog(
+                              routine!,
+                              yesterday.toIso8601String().substring(0, 10),
+                            );
+                            setState(() {
+                              isYesterdayCompleted = true;
+                            });
+                            if (context.mounted) {
+                              showErrorSnackbar(context, 'Workout completed! Great job 💪');
+                            }
+                          } else {
+                            await LocalDB.delete(yesterday);
+                            setState(() {
+                              isYesterdayCompleted = false;
+                            });
+                            if (context.mounted) {
+                              showErrorSnackbar(context, 'Workout incomplete. 😭');
+                            }
+                          }
+                        },
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: isYesterdayCompleted ? Colors.green.shade600 : dullColor,
                           child: Icon(Icons.check, color: secondaryColor),
                         ),
                       ),

@@ -72,12 +72,12 @@ class CountdownDialogState extends State<CountdownDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CircularPercentIndicator(
-            radius: 75.0,
+            radius: 80.0,
             lineWidth: 20.0,
             percent: _progress,
             center: Text(
               '$_remaining s',
-              style: TextStyles.boldText,
+              style: TextStyles.titleText,
             ),
             progressColor: primaryColor,
             backgroundColor: dullColor,
