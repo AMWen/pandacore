@@ -142,5 +142,5 @@ final List<Exercise> exercisePool = [
     increment: 5,
     videoLink: 'https://youtu.be/7QMpN9uFHeI',
   ),
-  Exercise(name: 'Goalies', amount: 20, increment: 5, videoLink: 'https://youtu.be/gDrMWkoQ1rY'),
+  Exercise(name: 'Goalies', amount: 20, increment: 2, videoLink: 'https://youtu.be/gDrMWkoQ1rY'),
 ];
