@@ -8,6 +8,7 @@ import '../data/models/exercise_model.dart';
 import '../data/services/localdb_service.dart';
 import '../data/services/workout_generator.dart';
 import '../data/widgets/workoutcard_widget.dart';
+import '../data/widgets/panda_streak_widget.dart';
 import 'history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int? prevSeed;
   late int todaySeed;
   late int yesterdaySeed;
+  final GlobalKey<PandaStreakWidgetState> _pandaStreakKey = GlobalKey();
 
   @override
   void initState() {
@@ -164,12 +166,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!isCompleted) {
       await LocalDB.insertLog(routine, formattedDate);
       updateState(true);
+      _pandaStreakKey.currentState?.refresh();
       if (context.mounted) {
         showErrorSnackbar(context, 'Workout completed! Great job 💪');
       }
     } else {
       await LocalDB.delete(date);
       updateState(false);
+      _pandaStreakKey.currentState?.refresh();
       if (context.mounted) {
         showErrorSnackbar(context, 'Workout incomplete. 😭');
       }
@@ -217,57 +221,62 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(width: 10),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Today Card
-            Text(
-              'Today: ${routine!.exercisesPerSet} exercises x ${routine!.sets}',
-              style: TextStyles.titleText,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            buildWorkoutCard(
-              context: context,
-              routine: routine!,
-              isCompleted: isWorkoutCompleted,
-              onToggleComplete: () async {
-                await toggleWorkoutCompletion(
-                  context: context,
-                  date: today,
-                  isCompleted: isWorkoutCompleted,
-                  routine: routine!,
-                  updateState: (val) => setState(() => isWorkoutCompleted = val),
-                );
-              },
-              onLaunchUrl: _launchUrl,
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              // Today Card
+              Text(
+                'Today: ${routine!.exercisesPerSet} exercises x ${routine!.sets}',
+                style: TextStyles.titleText,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              buildWorkoutCard(
+                context: context,
+                routine: routine!,
+                isCompleted: isWorkoutCompleted,
+                onToggleComplete: () async {
+                  await toggleWorkoutCompletion(
+                    context: context,
+                    date: today,
+                    isCompleted: isWorkoutCompleted,
+                    routine: routine!,
+                    updateState: (val) => setState(() => isWorkoutCompleted = val),
+                  );
+                },
+                onLaunchUrl: _launchUrl,
+              ),
 
-            // Yesterday Card
-            SizedBox(height: 16),
-            Text(
-              'Yesterday: ${yesterdayRoutine!.exercisesPerSet} exercises x ${yesterdayRoutine!.sets}',
-              style: TextStyles.titleText,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            buildWorkoutCard(
-              context: context,
-              routine: yesterdayRoutine!,
-              isCompleted: isYesterdayCompleted,
-              onToggleComplete: () async {
-                await toggleWorkoutCompletion(
-                  context: context,
-                  date: yesterday,
-                  isCompleted: isYesterdayCompleted,
-                  routine: yesterdayRoutine!,
-                  updateState: (val) => setState(() => isYesterdayCompleted = val),
-                );
-              },
-              onLaunchUrl: _launchUrl,
-            ),
-          ],
+              // Yesterday Card
+              SizedBox(height: 16),
+              Text(
+                'Yesterday: ${yesterdayRoutine!.exercisesPerSet} exercises x ${yesterdayRoutine!.sets}',
+                style: TextStyles.titleText,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              buildWorkoutCard(
+                context: context,
+                routine: yesterdayRoutine!,
+                isCompleted: isYesterdayCompleted,
+                onToggleComplete: () async {
+                  await toggleWorkoutCompletion(
+                    context: context,
+                    date: yesterday,
+                    isCompleted: isYesterdayCompleted,
+                    routine: yesterdayRoutine!,
+                    updateState: (val) => setState(() => isYesterdayCompleted = val),
+                  );
+                },
+                onLaunchUrl: _launchUrl,
+              ),
+
+              // Panda Streak Widget
+              PandaStreakWidget(key: _pandaStreakKey),
+            ],
+          ),
         ),
       ),
     );
