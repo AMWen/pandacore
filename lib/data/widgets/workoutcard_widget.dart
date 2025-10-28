@@ -52,14 +52,18 @@ Widget buildWorkoutCard({
                 }).toList(),
           ),
           Positioned(
-            right: 12,
-            top: 6,
+            right: -9,
+            top: -9,
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: onToggleComplete,
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: isCompleted ? Colors.green.shade600 : dullColor,
-                child: Icon(Icons.check, color: secondaryColor),
+              child: Container(
+                padding: EdgeInsets.all(18),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: isCompleted ? Colors.green.shade600 : dullColor,
+                  child: Icon(Icons.check, color: secondaryColor),
+                ),
               ),
             ),
           ),
